@@ -23,17 +23,51 @@ $urlMatcher = new UrlMatcher($routes, $context);
 
 
 
+// function hello()
+// {
+//     echo 'Hello le callable';
+// }
+
+
+// function classique(string $prenom)
+// {
+//     var_dump("classique : $prenom ");
+// }
+
+// $anonyme = function (string $prenom) {
+//     var_dump("Closure : $prenom");
+// };
+
+// class Maclass
+// {
+
+
+//     public function methode(string $prenom)
+//     {
+//         var_dump("Méthode de l'objet : $prenom");
+//     }
+// }
+
+// $callable = [new Maclass(), 'methode'];
+
+// //$callable('Walid');
+
+
+// call_user_func('hello');
+
+
 try {
 
-    extract($urlMatcher->match($request->getPathInfo()));
-    ob_start();
+    $resultat =  $urlMatcher->match($request->getPathInfo());
 
-    include __DIR__ . '/../src/pages/' . $_route  . '.php';
-    $response = new Response(ob_get_clean());
+    $request->attributes->add($resultat);
+    // var_dump($request->attributes);
+    $response = call_user_func($resultat['_controller'], $request);
 } catch (ResourceNotFoundException $e) {
     $response = new Response("Le contenu n'existe pas", 404);
 } catch (Exception $e) {
     $response = new Response("Une erreur est survenue sur le serveur", 500);
 }
+
 
 $response->send();
