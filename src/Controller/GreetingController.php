@@ -18,4 +18,14 @@ class GreetingController
         // Envoyer la réponse
         return new Response(ob_get_clean());
     }
+
+    public function bye()
+    {
+        //integrer du HTML
+        ob_start();
+        include __DIR__ . '/../pages/bye.php';
+
+        // Envoyer la réponse
+        return new Response(ob_get_clean());
+    }
 }
