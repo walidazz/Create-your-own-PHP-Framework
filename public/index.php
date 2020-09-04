@@ -6,6 +6,8 @@ use Symfony\Component\Routing\RequestContext;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\RouteCollection;
 use Symfony\Component\Routing\Matcher\UrlMatcher;
+use Symfony\Component\HttpKernel\Controller\ArgumentResolver;
+use Symfony\Component\HttpKernel\Controller\ControllerResolver;
 use Symfony\Component\Routing\Exception\ResourceNotFoundException;
 
 require __DIR__ . '/../vendor/autoload.php';
@@ -55,14 +57,19 @@ $urlMatcher = new UrlMatcher($routes, $context);
 
 // call_user_func('hello');
 
+$controllerResolver = new ControllerResolver();
+$argumentResolver = new ArgumentResolver();
+
 
 try {
 
-    $resultat =  $urlMatcher->match($request->getPathInfo());
+    $request->attributes->add($urlMatcher->match($request->getPathInfo()));
 
-    $request->attributes->add($resultat);
+    $controller = $controllerResolver->getController($request);
+    $aguments = $argumentResolver->getArguments($request, $controller);
+
     // var_dump($request->attributes);
-    $response = call_user_func($resultat['_controller'], $request);
+    $response = call_user_func_array($controller, $aguments);
 } catch (ResourceNotFoundException $e) {
     $response = new Response("Le contenu n'existe pas", 404);
 } catch (Exception $e) {
